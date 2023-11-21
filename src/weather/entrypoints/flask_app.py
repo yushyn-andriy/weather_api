@@ -9,4 +9,4 @@ app = Flask(__name__)
 def _ok():
     return {
         'status': 'ok',
-    }, 201
+    }, 200
