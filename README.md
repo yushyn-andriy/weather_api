@@ -1,26 +1,20 @@
 # Weather API
 
 ## Requirements
-- docker with docker-compose
+- linux machine
+- python3.11 
 - make utility
 - curl
+- Open Weather API Key 
 
 ===============================================================================
 
-### Building the containers
+### Run 
 ```sh
-make build
-make up
-# or
-make all # builds, bring containers up, runs tests
-```
+# API key from  https://openweathermap.org/api
+export WEATHER_OPEN_API_KEY='YOUR API KEY'
 
-===============================================================================
-
-
-## Run rests
-```
-make tests
+make up_local
 ```
 
 ===============================================================================
@@ -29,6 +23,8 @@ make tests
 
 ## Explore the Weather API
 ```sh
-curl -XGET 'http://localhost:8000/_status'                         # check an application status
-curl -XGET 'http://localhost:8000/api/v1/temperature?date=Y-m-d'   # get temperatures accoring to provided date
+# check an application status
+curl -XGET 'http://localhost:5000/api/v1/_status'
+# get temperatures accoring to provided date
+curl -XGET -H "x-token:$(python3 -c 'print("-"*32)')" 'http://localhost:5000/api/v1/weather?day=2023-11-22'
 ```
