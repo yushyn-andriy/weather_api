@@ -10,6 +10,7 @@ CITY_LIST_PATH = ./data/city.list.json
 
 ./.app_ready: ./.env
 	. ./.env/bin/activate
+	mkdir -p ./instance
 	flask -A $(FLASK_APP) init-db
 	flask -A $(FLASK_APP) load-city-list $(CITY_LIST_PATH)
 	touch ./.app_ready
