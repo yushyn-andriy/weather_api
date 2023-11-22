@@ -42,6 +42,7 @@ def init_services(app):
             WeatherRepo(session),
             CityRepo(session),
             OpenWeatherSDK(app.config['OPEN_WEATHER_API_KEY']),
+            app.config['CITY_NAME'],
         )
         app.weather_svc = weather_svc
 

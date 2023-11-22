@@ -67,7 +67,7 @@ class CityRepo(BaseRepo):
         '''Returns a city object by name.'''
         return self._session.query(City).filter(
             City.name == city_name,
-        ).one_or_none()
+        ).first()
 
 
     def clear_all(self) -> None:
