@@ -13,6 +13,7 @@
 ```sh
 # API key from  https://openweathermap.org/api
 export WEATHER_OPEN_API_KEY='YOUR API KEY'
+export WEATHER_CITY_NAME=Kyiv
 
 make up_local
 ```
