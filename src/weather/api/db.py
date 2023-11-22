@@ -6,20 +6,24 @@ from flask import current_app, g
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-
-from weather.adapters.orm import metadata, start_mappers
+from src.weather.adapters.orm import metadata, start_mappers
 
 
 logger = logging.getLogger(__name__)
 
 
+start_mappers()
+
+
 def get_engine():
-    logger.info('Get engine')
-    return create_engine(current_app.config['DATABASE'])
+    '''Creates an engine.'''
+    logger.info('get engine')
+    return create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
 
 
 def get_db_session():
-    logger.info('Get session')
+    '''Creates a db session.'''
+    logger.info('get session')
     if 'db' not in g:
         engine = get_engine()
         g.db = Session(engine)
@@ -27,17 +31,26 @@ def get_db_session():
 
 
 def close_db(e=None):
-    logger.info('Close session')
+    '''Closes a db session.'''
+    logger.info('close db session')
     db = g.pop('db', None)
     if db is not None:
-        db.close()
+        try:
+            logger.info('commit changes')
+            db.commit()
+        except BaseException as e:
+            logger.error(f'error when commiting {e}')
+            logger.info(f'rollback changes')
+            db.rollback()
+        finally:
+            logger.info('finally close the session')
+            db.close()
 
 
 @click.command('init-db')
 def init_db_command():
     '''Initialize the database.'''
     metadata.create_all(get_engine())
-    start_mappers()
 
 
 def init_app(app):
