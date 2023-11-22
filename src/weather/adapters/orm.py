@@ -2,12 +2,12 @@ import logging
 
 from sqlalchemy import (
     Table,
-    MetaData,
     Column,
     Integer,
     String,
     DateTime,
     ForeignKey,
+    Float,
 )
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import (
@@ -15,9 +15,8 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from weather.domain.models import (
+from src.weather.domain.models import (
     City,
-    Coord,
     Weather,
 )
 
@@ -29,21 +28,15 @@ mapper_registry = registry()
 metadata = mapper_registry.metadata
 
 
-coords_table = Table(
-    'coords_table',
-    metadata,
-    Column('id', Integer, primary_key=True, autoincrement=True, index=True),
-    Column('lon', Integer, nullable=False),
-    Column('lat', Integer, nullable=False),
-)
-
-
 cities_table = Table(
     'cities_table',
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True, index=True),
     Column('name', String(length=128), index=True),
+    Column('country', String(length=128), server_default='', index=False),
     Column('city_id', Integer, nullable=False, index=True),
+    Column('lat', Float, nullable=False),
+    Column('lon', Float, nullable=False),
 )
 
 
@@ -52,22 +45,23 @@ weathers_table = Table(
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True, index=True),
     Column('city_id', ForeignKey('cities_table.id', ondelete='CASCADE'), nullable=True),
-    Column('coord_id', ForeignKey('coords_table.id', ondelete='CASCADE'), nullable=True),
-    Column('temp', Integer, nullable=False),
+    Column('temp', Float, nullable=False),
     Column('extra', JSON, nullable=False, server_default='{}'),
     Column('datetime', DateTime, nullable=False),
 )
 
 
 def start_mappers():
+    '''
+    Map objects to sql tables.
+    Such approach decreases a code coupling.
+    '''
     logger.info("Starting mappers")
     cities_mapper = mapper_registry.map_imperatively(City, cities_table)
-    coords_mapper = mapper_registry.map_imperatively(Coord, coords_table)
-    weathers_mapper = mapper_registry.map_imperatively(
+    mapper_registry.map_imperatively(
         Weather,
         weathers_table,
         properties={
             'city': relationship(cities_mapper),
-            'coord': relationship(coords_mapper),
         },
     )
